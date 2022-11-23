@@ -155,6 +155,21 @@ service : {
 
 ### porting an existing application to the IC
 
+Porting an existing applications written in C/C++ can be extremely simple or extremely complex, if not impossible. As explained above, a canister written in C/C++ should not depend on any OS system calls. That's because a canister running on the IC does not have access to the underlying OS on which an IC node runs. A canister is completely isolated from that OS, the hardware it runs on, and can only involke calls to the IC system calls or call other canisters on the IC.
+
+As explained above, it is relatively easy to compile a C/C++ application to a canister (or a set of canisters). In principle, it is fine if an OS system call is present in the canister wasm code, as long as it is never invoked. However, the IC will reject the wasm file as the system call will show up as an imported function. The IC can not resolve the import and will therefore reject the wasm file. So if you are in such a situation, you can simply include in your code a file with dummy definitions of all the OS syetem calls that are unreachable and can not be pruned fro the applications. Given that they will never be called, it down not matter what definitions they might have. Here is an example of a system call in the libc system library with a dummy definition:
+
+```c
+int gettimeofday(const char *pathname, int mode){
+  trap("calling gettimeofday");
+  return 0;
+}
+```
+
+If the application ever reaches this call, the canister will trap. But if it is unreachable, it can have any dummy definition and return any valid value given the type.
+
+In practical terms, porting an existing application to the IC is a matter of editing the Makefile or any build script and wrapping the calls to the CC and LD env variables with a call that generates wasm from a C/C++ file or link multiple wasm files into a single one.
+
 ## Sqlite
 
 ## Ports: a list of applications ported to the IC
