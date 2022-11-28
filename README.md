@@ -172,6 +172,41 @@ In practical terms, porting an existing application to the IC is a matter of edi
 
 ## Sqlite
 
+[IC_sqlite](https://github.com/HassenSaidi/IC_sqlite) is a port of SQLite to the IC. SQLite is a very popular database installed on billions of devices.
+SQLite can be viewed as two different products:
+* sqlite as a commandline executable
+* sqlitelib as a library that can be linked to an application.
+
+As an executable, it might seem impossible to port to the IC. An executable can not be ported as is to the IC. A main function does not even make sense.
+SQLIte as a library makes more sense to port to the IC, so that some of the library functions can be turned into IC query and update calls. Taking advantage of static linking, it is possible to prune the library and only include code that supports the defined query and update calls.
+
+[IC_sqlite](https://github.com/HassenSaidi/IC_sqlite) uses only the following SQLIte library calls:
+* `sqlite3_open_v2` to create a database
+* `sqlite3_exec` to execute a query or an update call
+* `sqlite3_str_new`, `sqlite3_str_append`, `sqlite3_str_finish`, and `sqlite3_str_appendall` to create and expand sqlite strings.
+* `sqlite3_str_free` to free an allocated space for sqlite strings.
+Any other library calls that do not support these calls can be safely pruned, resulting in a smaller wasm canister code.
+
+SQLite code contains a lot of linus system calls. In particular, file manipulation system calls associated with creating and accessing databases. Databases are stored in files. However, this port to the IC uses the in-memory feature of SQLite which stores all databases in memory. If the in-memory feautre is used on a linux platform, all databases are lost and not persisted when exciting the sqlite application. However, on the IC, the orthogonal persistence property of canisters makes sure that after each update call, the in-memory databases are automatically persisted.
+
+To ensure that none of the linux system calls are present in the wasm canister code, we compile SQLite with the following flags:
+```bash
+ -DSQLITE_OS_OTHER=1 \
+      -DSQLITE_OMIT_PROGRESS_CALLBACK \
+      -DSQLITE_OMIT_XFER_OPT\
+      -DHAVE_READLINE=0 -DHAVE_EDITLINE=0 -DSQLITE_OMIT_LOAD_EXTENSION \
+      -DSQLITE_OMIT_SHARED_CACHE=1 \
+      -DSQLITE_ENABLE_MEMORY_MANAGEMENT=1 \
+      -DSQLITE_ENABLE_MEMSYS3=1 \
+      -DSQLITE_TEMP_STORE=3 \
+      -DSQLITE_OMIT_DEPRECATED=1 \
+      -DSQLITE_MAX_EXPR_DEPTH=0 \
+      -DSQLITE_THREADSAFE=0 \
+      -DSQLITE_OMIT_TRACE=1 -DSQLITE_OMIT_RANDOMNESS=1 \
+      -DNDEBUG \
+      -DSQLITE_CORE=1 \
+```
+
 ## Ports: a list of applications ported to the IC
 
 ## TODO
