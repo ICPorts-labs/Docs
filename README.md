@@ -219,4 +219,14 @@ To ensure that none of the linux system calls are present in the wasm canister c
 
 ## Ports: a list of applications ported to the IC
 
+Here we list known applications and libraries ported to the IC
+
+* SQLite
+
 ## TODO
+
+Here is a list of things to do before the official release of Chico:
+
+* release candidc
+* support for working with stable memory
+* provide a tool for porting much of the linux user space to the IC
