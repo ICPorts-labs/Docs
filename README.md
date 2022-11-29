@@ -153,7 +153,7 @@ service : {
 ```
 
 
-### porting an existing application to the IC
+### Porting an existing application to the IC
 
 Porting an existing applications written in C/C++ can be extremely simple or extremely complex, if not impossible. As explained above, a canister written in C/C++ should not depend on any OS system calls. That's because a canister running on the IC does not have access to the underlying OS on which an IC node runs. A canister is completely isolated from that OS, the hardware it runs on, and can only involke calls to the IC system calls or call other canisters on the IC.
 
@@ -169,6 +169,17 @@ int gettimeofday(const char *pathname, int mode){
 If the application ever reaches this call, the canister will trap. But if it is unreachable, it can have any dummy definition and return any valid value given the type.
 
 In practical terms, porting an existing application to the IC is a matter of editing the Makefile or any build script and wrapping the calls to the CC and LD env variables with a call that generates wasm from a C/C++ file or link multiple wasm files into a single one.
+
+### Porting criteria for a C application
+
+C applications come in two flavors: applications and libraries. 
+
+== Applications tend to be executables that can be invoked from the command line. They typically include a `main` function that parses arguments and make subsequent calls. Such applications are usually hard to port to the IC. Canisters do not have usually a main function. They contain query and update calls. Canisters act more like libraries than applications. Hpwever, it is possible to port an application with a main function into the IC. This is done by either:
+* editting the application code to eliminate `main` and eliminating the code that parses commandline arguments and creating multiple update or query calls corresponding to the different arguments combination, or by eliminating `main` alltogether.
+* designate which functions in the application that correspond to update and query calls, link against the application code and let the linker eliminate any functions that do not belong to the call graph starting from an update or a query call. Not all linkers might be clever enough to be able to perform such code elimination though.
+==
+
+== Libraries ==
 
 ## Sqlite
 
