@@ -174,12 +174,11 @@ In practical terms, porting an existing application to the IC is a matter of edi
 
 C applications come in two flavors: applications and libraries. 
 
-== Applications tend to be executables that can be invoked from the command line. They typically include a `main` function that parses arguments and make subsequent calls. Such applications are usually hard to port to the IC. Canisters do not have usually a main function. They contain query and update calls. Canisters act more like libraries than applications. Hpwever, it is possible to port an application with a main function into the IC. This is done by either:
+<mark style="background-color: #f7e98e"> Applications tend to be executables that can be invoked from the command line. They typically include a `main` function that parses arguments and make subsequent calls. Such applications are usually hard to port to the IC. Canisters do not have usually a main function. They contain query and update calls. Canisters act more like libraries than applications. Hpwever, it is possible to port an application with a main function into the IC. This is done by either:
 * editting the application code to eliminate `main` and eliminating the code that parses commandline arguments and creating multiple update or query calls corresponding to the different arguments combination, or by eliminating `main` alltogether.
-* designate which functions in the application that correspond to update and query calls, link against the application code and let the linker eliminate any functions that do not belong to the call graph starting from an update or a query call. Not all linkers might be clever enough to be able to perform such code elimination though.
-==
+* designate which functions in the application that correspond to update and query calls, link against the application code and let the linker eliminate any functions that do not belong to the call graph starting from an update or a query call. Not all linkers might be clever enough to be able to perform such code elimination though.</mark> 
 
-== Libraries ==
+<mark style="background-color: #f7e98e"> Libraries tend to be compiled into an archive file containing a set of exported functions and their callees. They are much more amenable to being compiled inot IC canisters. After deciding which exported functions should be a query or an update call, compiling toa library archive into a canister is a matter of updating the Makefile as described above.</mark> 
 
 ## Sqlite
 
